@@ -4,7 +4,7 @@ volumes:
   datafiles:
 
 services:
-  f20itonkgrp7backend:
+  database:
     image: mysql:latest
     volumes:
       - datafiles:/var/lib/mysql
@@ -12,17 +12,30 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: my-secret-pw
 
-  mvc:
+  backend:
+    image: bimelimski/backendgrp7
+    build:
+      context: . 
+      dockerfile:       
+    depends_on:
+      - database
+    ports:
+      - "8081:80"
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  frontend:
+    image: bimelimski/frontendgrp7
     build:
       context: .
       dockerfile: Dockerfile
     depends_on: 
-      - f20itonkgrp7backend
+      - backend
     ports: 
       - "8080:80"
     restart: always
     environment: 
-      - DBHOST=f20itonkgrp7backend
       - ASPNETCORE_ENVIRONMENT=Development
 
 # run this in powershell from root-folder      
